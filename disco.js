@@ -19,6 +19,34 @@ var CMDS={
  BWHITE:[0x31 ,0x00 ,0x00 ,0x00 ,0x03 ,0x05 ,0x00 ,0x00 ,0x00],
 };
 
+var baseCtl=function(){
+	var color=0x7A;
+	var brightness=0x32;
+	
+	return {
+		brightnessUp:function(){
+			brightness=Math.min(brightness+5,0x64);
+			return [0x31,0x00,0x00,0x00,0x02,brightness,0x00,0x00,0x00]
+		},
+		brightnessDown:function(){
+			brightness=Math.max(brightness-5,0x00);
+			return [0x31,0x00,0x00,0x00,0x02,brightness,0x00,0x00,0x00]
+		},
+		colorUp:function(){
+			color=Math.min(color+5,0xFF);
+			return [0x31,0x00,0x00,0x00,0x01,color,color,color,color]
+		},
+		colorDown:function(){
+			color=Math.max(color-5,0x00);
+			return [0x31,0x00,0x00,0x00,0x01,color,color,color,color]
+		},
+		mode:function(mode){
+			return [0x31,0x00,0x00,0x00,0x04,mode,0,0,0]
+		}
+	}
+	
+}();
+
 var bridgeID;
 var seqNum=0x02;
 
@@ -161,6 +189,58 @@ rl.on('line', function(line) {
 	break;
     case 'base white':
 	var nFrame=buildFrame(bridgeID,CMDS.BWHITE,0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base brighter':
+	var nFrame=buildFrame(bridgeID,baseCtl.brightnessUp(),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base dimmer':
+	var nFrame=buildFrame(bridgeID,baseCtl.brightnessDown(),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base colorUp':
+	var nFrame=buildFrame(bridgeID,baseCtl.colorUp(),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base colorDown':
+	var nFrame=buildFrame(bridgeID,baseCtl.colorDown(),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base mode1':
+	var nFrame=buildFrame(bridgeID,baseCtl.mode(1),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base mode2':
+	var nFrame=buildFrame(bridgeID,baseCtl.mode(2),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base mode3':
+	var nFrame=buildFrame(bridgeID,baseCtl.mode(3),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base mode4':
+	var nFrame=buildFrame(bridgeID,baseCtl.mode(4),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base mode5':
+	var nFrame=buildFrame(bridgeID,baseCtl.mode(5),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base mode6':
+	var nFrame=buildFrame(bridgeID,baseCtl.mode(6),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base mode7':
+	var nFrame=buildFrame(bridgeID,baseCtl.mode(7),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base mode8':
+	var nFrame=buildFrame(bridgeID,baseCtl.mode(8),0x01);
+	sendFrame(nFrame);
+	break;
+    case 'base mode9':
+	var nFrame=buildFrame(bridgeID,baseCtl.mode(9),0x01);
 	sendFrame(nFrame);
 	break;
     default:
