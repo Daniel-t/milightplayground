@@ -25,7 +25,7 @@ var zoneCtlRGBW=function(zoneID){
   var saturation=0x32;
   var colorTemp=0x4B;
   var zone=zoneID;
-  if(zone > 4 or zone <0 ) console.log("invalid zone");
+  if(zone > 4 || zone <0 ) console.log("invalid zone");
 
   return {
     on: function(){
@@ -35,10 +35,10 @@ var zoneCtlRGBW=function(zoneID){
       return [0x31,0,0,0x08,0x04,0x02,0,0,0,zoneID];
     },
     nightMode: function() {
-      return [0x31,0,0,0x08,0x04,0x05,0,0,0,zoneID],
+      return [0x31,0,0,0x08,0x04,0x05,0,0,0,zoneID];
     },
     whiteMode:function() {
-      return [0x31,0,0,0x08,0x05,0x64,0,0,0,zoneID],
+      return [0x31,0,0,0x08,0x05,0x64,0,0,0,zoneID];
     },
     brightnessUp:function(){
       brightness=Math.min(brightness+5,0x64);
@@ -95,11 +95,14 @@ var zoneCtlRGBW=function(zoneID){
   }
 }
 
-var baseCtl=function(){
+var baseCtlFactory=function(){
 	var color=0x7A;
 	var brightness=0x32;
   var zoneID=0x01;
 	return {
+ 		on:function(){return [0x31,0x00,0x00,0x00,0x03,0x03,0x00,0x00,0x00,zoneID]},
+		off:function(){return [0x31,0x00,0x00,0x00,0x03,0x04,0x00,0x00,0x00,zoneID]},
+ 		whiteMode:function(){return [0x31 ,0x00 ,0x00 ,0x00 ,0x03 ,0x05 ,0x00 ,0x00 ,0x00,zoneID]},
 		brightnessUp:function(){
 			brightness=Math.min(brightness+5,0x64);
 			return [0x31,0x00,0x00,0x00,0x02,brightness,0x00,0x00,0x00,zoneID]
@@ -143,6 +146,7 @@ var sendCmd = function(WB,CMD){
 	out =	out.concat(chkSum);
 	//console.log(JSON.stringify(out));
 	//console.log("#"+out.toString('hex'));
+	out=new Buffer(out);
 	seqNum=(seqNum+1)%256;
   console.log("Sending: " + out.toString('hex'));
   socket.send(out,0,out.length,DEFAULT_PORT,DEFAULT_HOST,function(){});
@@ -248,102 +252,90 @@ socket.on("message", (msg, rinfo) => {
 
 
 
-console.log(payload.toString('hex'));
 var initiate=function(){
 	//socket.send(payload,0,payload.length,DEFAULT_PORT,DEFAULT_HOST,function(a,b){});
   var payload=new Buffer([0x20,0x00,0x00,0x00,0x16,0x02,0x62,0x3a,0xd5,0xed,0xa3,0x01,0xae,0x08,0x2d,0x46,0x61,0x41,0xa7,0xf6,0xdc,0xaf,0xfe,0xf7,0x00,0x00,0x1e]);
+console.log(payload.toString('hex'));
 	sendFrame(payload);
 };
 
 initiate();
+var baseCtl=baseCtlFactory();
 
-var zone1=zoneCtlRGBW(0x01);
+var zone1Ctl=zoneCtlRGBW(0x01);
 
 var readline = require('readline'),
   rl = readline.createInterface(process.stdin, process.stdout),
   prefix = 'OHAI> ';
-
+var cmd;
 rl.on('line', function(line) {
   switch(line.trim()) {
     case 'hello':
       console.log('world!');
       break;
-    case 'on':
-	var nFrame=buildFrame(bridgeID,CMDS.ON,0x01);
-	sendFrame(nFrame);
+    case 'zone1 on':
+	cmd=zone1Ctl.on();
 	break;
-    case 'off':
-	var nFrame=buildFrame(bridgeID,CMDS.OFF,0x01);
-	sendFrame(nFrame);
+    case 'zone1 off':
+	cmd=zone1Ctl.off();
 	break;
-    case 'base on':
-	var nFrame=buildFrame(bridgeID,CMDS.BON,0x01);
-	sendFrame(nFrame);
+    case 'zone1 white':
+	cmd=zone1Ctl.whiteMode();
+	break;
+    case 'zone1 brighter':
+	cmd=zone1Ctl.brightnessUp();
+	break;
+    case 'zone1 dimmer':
+	cmd=zone1Ctl.brightnessDown();
+	//var nFrame=buildFrame(bridgeID,zone1Ctl.brightnessDown(),0x01);
+	//sendFrame(nFrame);
+	break;
+    case 'zone1 colorUp':
+	cmd=zone1Ctl.colorUp();
+	break;
+    case 'zone1 colorDown':
+	cmd=zone1Ctl.colorDown();
+	break;
+    case 'zone1 mode1':
+	cmd=zone1Ctl.mode(1);
+	break;
+    case 'zone1 mode2':
+	cmd=zone1Ctl.mode(2);
+	break;
+case 'base on':
+	cmd=baseCtl.on();
 	break;
     case 'base off':
-	var nFrame=buildFrame(bridgeID,CMDS.BOFF,0x01);
-	sendFrame(nFrame);
+	cmd=baseCtl.off();
 	break;
     case 'base white':
-	var nFrame=buildFrame(bridgeID,CMDS.BWHITE,0x01);
-	sendFrame(nFrame);
+	cmd=baseCtl.whiteMode();
 	break;
     case 'base brighter':
-	var nFrame=buildFrame(bridgeID,baseCtl.brightnessUp(),0x01);
-	sendFrame(nFrame);
+	cmd=baseCtl.brightnessUp();
 	break;
     case 'base dimmer':
-	var nFrame=buildFrame(bridgeID,baseCtl.brightnessDown(),0x01);
-	sendFrame(nFrame);
+	cmd=baseCtl.brightnessDown();
+	//var nFrame=buildFrame(bridgeID,baseCtl.brightnessDown(),0x01);
+	//sendFrame(nFrame);
 	break;
     case 'base colorUp':
-	var nFrame=buildFrame(bridgeID,baseCtl.colorUp(),0x01);
-	sendFrame(nFrame);
+	cmd=baseCtl.colorUp();
 	break;
     case 'base colorDown':
-	var nFrame=buildFrame(bridgeID,baseCtl.colorDown(),0x01);
-	sendFrame(nFrame);
+	cmd=baseCtl.colorDown();
 	break;
     case 'base mode1':
-	var nFrame=buildFrame(bridgeID,baseCtl.mode(1),0x01);
-	sendFrame(nFrame);
+	cmd=baseCtl.mode(1);
 	break;
     case 'base mode2':
-	var nFrame=buildFrame(bridgeID,baseCtl.mode(2),0x01);
-	sendFrame(nFrame);
-	break;
-    case 'base mode3':
-	var nFrame=buildFrame(bridgeID,baseCtl.mode(3),0x01);
-	sendFrame(nFrame);
-	break;
-    case 'base mode4':
-	var nFrame=buildFrame(bridgeID,baseCtl.mode(4),0x01);
-	sendFrame(nFrame);
-	break;
-    case 'base mode5':
-	var nFrame=buildFrame(bridgeID,baseCtl.mode(5),0x01);
-	sendFrame(nFrame);
-	break;
-    case 'base mode6':
-	var nFrame=buildFrame(bridgeID,baseCtl.mode(6),0x01);
-	sendFrame(nFrame);
-	break;
-    case 'base mode7':
-	var nFrame=buildFrame(bridgeID,baseCtl.mode(7),0x01);
-	sendFrame(nFrame);
-	break;
-    case 'base mode8':
-	var nFrame=buildFrame(bridgeID,baseCtl.mode(8),0x01);
-	sendFrame(nFrame);
-	break;
-    case 'base mode9':
-	var nFrame=buildFrame(bridgeID,baseCtl.mode(9),0x01);
-	sendFrame(nFrame);
+	cmd=baseCtl.mode(2);
 	break;
     default:
       console.log('Say what? I might have heard `' + line.trim() + '`');
       break;
   }
+	sendCmd(bridgeID,cmd);
   rl.setPrompt(prefix, prefix.length);
   rl.prompt();
 }).on('close', function() {
@@ -353,3 +345,5 @@ rl.on('line', function(line) {
 console.log(prefix + 'Good to see you. Try typing stuff.');
 rl.setPrompt(prefix, prefix.length);
 rl.prompt();
+
+
