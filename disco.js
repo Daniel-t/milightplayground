@@ -19,45 +19,135 @@ var CMDS={
  BWHITE:[0x31 ,0x00 ,0x00 ,0x00 ,0x03 ,0x05 ,0x00 ,0x00 ,0x00],
 };
 
+var zoneCtlRGBW=function(zoneID){
+  var color=0x7A;
+	var brightness=0x32;
+  var saturation=0x32;
+  var colorTemp=0x4B;
+  var zone=zoneID;
+  if(zone > 4 or zone <0 ) console.log("invalid zone");
+
+  return {
+    on: function(){
+      return [0x31,0,0,0x08,0x04,0x01,0,0,0,zoneID];
+    },
+    off: function(){
+      return [0x31,0,0,0x08,0x04,0x02,0,0,0,zoneID];
+    },
+    nightMode: function() {
+      return [0x31,0,0,0x08,0x04,0x05,0,0,0,zoneID],
+    },
+    whiteMode:function() {
+      return [0x31,0,0,0x08,0x05,0x64,0,0,0,zoneID],
+    },
+    brightnessUp:function(){
+      brightness=Math.min(brightness+5,0x64);
+      return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
+    },
+    brightnessDown:function(){
+      brightness=Math.max(brightness-5,0x00);
+      return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
+    },
+    brightnessSet:function(b){
+      brightness=Math.max(b,0x00);
+      brightness=Math.min(b,0xFF);
+      return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
+    },
+    colorUp:function(){
+      color=Math.min(color+5,0xFF);
+      return [0x31,0x00,0x00,0x08,0x01,color,color,color,color,zoneID]
+    },
+    colorDown:function(){
+      color=Math.max(color-5,0x00);
+      return [0x31,0x00,0x00,0x08,0x01,color,color,color,color,zoneID]
+    },
+    colorSet:function(c){
+      color=c;
+      return [0x31,0x00,0x00,0x08,0x01,color,color,color,color,zoneID]
+    },
+    colorTempUp:function(){
+      colorTemp=Math.min(colorTemp+5,0x64);
+      return [0x31,0x00,0x00,0x08,0x05,colorTemp,0,0,0,zoneID]
+    },
+    colorTempDown:function(){
+      colorTemp=Math.max(colorTemp-5,0x00);
+      return [0x31,0x00,0x00,0x08,0x05,colorTemp,0,0,0,zoneID]
+    },
+    colorTempSet:function(c){
+      colorTemp=c;
+      return [0x31,0x00,0x00,0x08,0x05,colorTemp,0,0,0,zoneID]
+    },
+    mode:function(mode){
+      return [0x31,0x00,0x00,0x08,0x06,mode,0,0,0,zoneID]
+    },
+    modeSpeedUp:function(){
+      return [0x31,0,0,0x08,0x04,0x03,0,0,0,zoneID]
+    },
+    modeSpeedDown:function(){
+      return [0x31,0,0,0x08,0x04,0x04,0,0,0,zoneID]
+    },
+    link:function(){
+      return [0x3D,0,0,0x08,0,0,0,0,0,zoneID]
+    },
+    unlink:function(){
+      return [0x3E,0,0,0x08,0,0,0,0,0,zoneID]
+    },
+  }
+}
+
 var baseCtl=function(){
 	var color=0x7A;
 	var brightness=0x32;
-	
+  var zoneID=0x01;
 	return {
 		brightnessUp:function(){
 			brightness=Math.min(brightness+5,0x64);
-			return [0x31,0x00,0x00,0x00,0x02,brightness,0x00,0x00,0x00]
+			return [0x31,0x00,0x00,0x00,0x02,brightness,0x00,0x00,0x00,zoneID]
 		},
 		brightnessDown:function(){
 			brightness=Math.max(brightness-5,0x00);
-			return [0x31,0x00,0x00,0x00,0x02,brightness,0x00,0x00,0x00]
+			return [0x31,0x00,0x00,0x00,0x02,brightness,0x00,0x00,0x00,zoneID]
 		},
 		brightnessSet:function(b){
 			brightness=Math.max(b,0x00);
 			brightness=Math.min(b,0xFF);
-			return [0x31,0x00,0x00,0x00,0x02,brightness,0x00,0x00,0x00]
+			return [0x31,0x00,0x00,0x00,0x02,brightness,0x00,0x00,0x00,zoneID]
 		},
 		colorUp:function(){
 			color=Math.min(color+5,0xFF);
-			return [0x31,0x00,0x00,0x00,0x01,color,color,color,color]
+			return [0x31,0x00,0x00,0x00,0x01,color,color,color,color,zoneID]
 		},
 		colorDown:function(){
 			color=Math.max(color-5,0x00);
-			return [0x31,0x00,0x00,0x00,0x01,color,color,color,color]
+			return [0x31,0x00,0x00,0x00,0x01,color,color,color,color,zoneID]
 		},
 		colorSet:function(c){
 			color=c;
-			return [0x31,0x00,0x00,0x00,0x01,color,color,color,color]
+			return [0x31,0x00,0x00,0x00,0x01,color,color,color,color,zoneID]
 		},
 		mode:function(mode){
-			return [0x31,0x00,0x00,0x00,0x04,mode,0,0,0]
+			return [0x31,0x00,0x00,0x00,0x04,mode,0,0,0,zoneID]
 		}
 	}
-	
-}();
+
+};
 
 var bridgeID;
 var seqNum=0x02;
+
+var sendCmd = function(WB,CMD){
+	var out=[];
+	//console.log("#"+WB.toString('hex')+"-"+CMD.toString("hex"));
+	out=out.concat(PREAMPLE,WB,0x00,0x00,seqNum,FILLER,CMD)
+	var chkSum=calcCheckSum(out);
+	out =	out.concat(chkSum);
+	//console.log(JSON.stringify(out));
+	//console.log("#"+out.toString('hex'));
+	seqNum=(seqNum+1)%256;
+  console.log("Sending: " + out.toString('hex'));
+  socket.send(out,0,out.length,DEFAULT_PORT,DEFAULT_HOST,function(){});
+
+}
 
 var buildFrame = function(WB,CMD,ZONE){
 	var out=[];
@@ -82,11 +172,11 @@ var sendKeepAlive=function(){
 }
 
 var calcCheckSum=function(aFrame){
-  
+
   var add=function(a,b){
-	return a+b;
+	   return a+b;
   };
- 
+
   var sub = aFrame.slice(Math.max(aFrame.length - 11, 0)) ;
   var val=sub.reduce(add,0)
   var val1=Math.floor(val / 0xff)
@@ -95,25 +185,17 @@ var calcCheckSum=function(aFrame){
 
 }
 
-var responder=function(host,port){
-	function encode_utf8(s) {
-  		return unescape(encodeURIComponent(s));
-	}
-
-	var resp="192.168.0.90,36c3d2c26dd5,HF-LPB100";
-
-	resp=new Buffer(encode_utf8(resp));
-	socket.send(resp,0,resp.length,port,host);
-}
 var _func={};
 
 _func['2800000011']=function(msg){
+  //response to initiate
 	var unknown1=msg.slice(5,7);
 	var mac=msg.slice(7,13);
 	var fixed=msg.slice(13,15);
 	var unknown2=msg.slice(15,19);
 	var counter=msg.slice(19,20);
 	var padding=msg.slice(20);
+  /*
 	console.log("0:" +msg.toString('hex'));
 	console.log("1:" +unknown1.toString('hex'));
 	console.log("2:" +mac.toString('hex'));
@@ -121,15 +203,20 @@ _func['2800000011']=function(msg){
 	console.log("3:" +unknown2.toString('hex'));
 	console.log("4:" +counter.toString('hex'));
 	console.log("5:" +padding.toString('hex'));
+  */
 	bridgeID=new Uint8Array(counter);
 //80:00:00:00:11:c1:01:00:0b:00:33:00:00:00:00:00:00:00:00:00:00:33
+
+  //complete initiation
 	var nFrame=buildFrame(bridgeID,[0x33,0,0,0,0,0,0,0,0,0],0x00);
 	sendFrame(nFrame);
+
+  //start keepalive
 	setInterval(sendKeepAlive,10000);
 };
 
 _func['8800000003']=function(msg){
-	//ERROR - ???
+	//ERROR - Confirmation?
 	var code= msg.slice(0,5);
 	var unknown1 = msg.slice(5,8);
 	console.log("0:" +msg.toString('hex'));
@@ -139,37 +226,38 @@ _func['8800000003']=function(msg){
 }
 
 _func['d800000007']=function(){
-	//keepalive
+	//keepalive response
 }
 
 var socket=dgram.createSocket('udp4');
 
-socket.bind(5987);
+socket.bind(DEFAULT_PORT);
 socket.on("message", (msg, rinfo) => {
   //console.log('Received %d bytes from %s:%d\n',
   //            msg.length, rinfo.address, rinfo.port);
   var hmsg=msg.toString('hex');
   var resp=(msg.toString('hex').substring(0,10));
-  if (_func[resp]) { _func[resp](msg) 
+  if (_func[resp]) {
+    _func[resp](msg)
   } else {
-  console.log("Unknown code");
-  console.log(hmsg);
+    console.log("Unknown code");
+    console.log(hmsg);
   }
 });
 
 
 
-var payload=new Buffer([0x20,0x00,0x00,0x00,0x16,0x02,0x62,0x3a,0xd5,0xed,0xa3,0x01,0xae,0x08,0x2d,0x46,0x61,0x41,0xa7,0xf6,0xdc,0xaf,0xfe,0xf7,0x00,0x00,0x1e]);
 
 console.log(payload.toString('hex'));
-var loopFn=function(){
+var initiate=function(){
 	//socket.send(payload,0,payload.length,DEFAULT_PORT,DEFAULT_HOST,function(a,b){});
+  var payload=new Buffer([0x20,0x00,0x00,0x00,0x16,0x02,0x62,0x3a,0xd5,0xed,0xa3,0x01,0xae,0x08,0x2d,0x46,0x61,0x41,0xa7,0xf6,0xdc,0xaf,0xfe,0xf7,0x00,0x00,0x1e]);
 	sendFrame(payload);
 };
 
-//setInterval(loopFn,5000);
-loopFn();
+initiate();
 
+var zone1=zoneCtlRGBW(0x01);
 
 var readline = require('readline'),
   rl = readline.createInterface(process.stdin, process.stdout),
