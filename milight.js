@@ -1,8 +1,11 @@
 'use strict';
 var dgram = require('dgram');
 
+var debug=false;
+
 var DEFAULT_HOST ;
 var DEFAULT_PORT ;
+var DEFAULT_REPEATS=3 ;
 
 var PREAMPLE = [0x80,0x00,0x00,0x00,0x11]
 
@@ -115,25 +118,20 @@ var zoneCtlRGBWWFactory=function(zoneID){
       return [0x31, 0x00, 0x00, 0x07, 0x03, 0x06, 0x00, 0x00, 0x00, zoneID];
     },
     whiteMode:function() {
-      return [0x31, 0x00, 0x00, 0x07, 0x04, 0x00, 0x00, 0x00, 0x00, zoneID];
+      return [0x31, 0x00, 0x00, 0x07, 0x03, 0x05, 0x00, 0x00, 0x00, zoneID];
     },
     brightnessUp:function(){
-      console.log("B+ not captured");
       brightness=Math.min(brightness+5,0x64);
-      return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
+      return [0x31, 0x00, 0x00, 0x07, 0x02, brightness, 0x00, 0x00, 0x00, zoneID]
     },
     brightnessDown:function(){
-      console.log("B+ not captured");
-
       brightness=Math.max(brightness-5,0x00);
-      return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
+      return [0x31, 0x00, 0x00, 0x07, 0x02, brightness, 0x00, 0x00, 0x00, zoneID]
     },
     brightnessSet:function(b){
-      console.log("B+ not captured");
-
       brightness=Math.max(b,0x00);
       brightness=Math.min(b,0xFF);
-      return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
+      return [0x31, 0x00, 0x00, 0x07, 0x02, brightness, 0x00, 0x00, 0x00, zoneID]
     },
     colorUp:function(){
       color=Math.min(color+5,0xFF);
@@ -158,11 +156,11 @@ var zoneCtlRGBWWFactory=function(zoneID){
     },
     link:function(){
       console.log("link not captured");
-      return [0x3D,0,0,0x08,0,0,0,0,0,zoneID]
+      return [0x3D,0,0,0x07,0,0,0,0,0,zoneID]
     },
     unlink:function(){
       console.log("link not captured");
-      return [0x3E,0,0,0x08,0,0,0,0,0,zoneID]
+      return [0x3E,0,0,0x07,0,0,0,0,0,zoneID]
     },
   }
 }
@@ -210,7 +208,9 @@ var baseCtlFactory=function(){
 var bridgeID;
 var seqNum=0x02;
 
-var sendCmd = function(CMD){
+var sendCmd = function(CMD,repeats){
+	if (typeof repeats === 'undefined') { repeats = DEFAULT_REPEATS};
+
 	var out=[];
 	//console.log("#"+WB.toString('hex')+"-"+CMD.toString("hex"));
 	out=out.concat(PREAMPLE,bridgeID,0x00,0x00,seqNum,FILLER,CMD)
@@ -220,8 +220,10 @@ var sendCmd = function(CMD){
 	//console.log("#"+out.toString('hex'));
 	out=new Buffer(out);
 	seqNum=(seqNum+1)%256;
-  console.log("Sending: " + out.toString('hex'));
-  socket.send(out,0,out.length,DEFAULT_PORT,DEFAULT_HOST,function(){});
+  	if(debug) console.log("Sending: " + out.toString('hex'));
+	for (var i=0;i<repeats;i++){
+  		socket.send(out,0,out.length,DEFAULT_PORT,DEFAULT_HOST,function(){});
+	}
 
 }
 
@@ -238,7 +240,7 @@ var buildFrame = function(WB,CMD,ZONE){
 }
 
 var sendFrame=function(payload){
-	console.log("Sending: " + payload.toString('hex'));
+	if(debug) console.log("Sending: " + payload.toString('hex'));
 	socket.send(payload,0,payload.length,DEFAULT_PORT,DEFAULT_HOST,function(){});
 }
 
@@ -295,10 +297,9 @@ _func['8800000003']=function(msg){
 	//ERROR - Confirmation?
 	var code= msg.slice(0,5);
 	var unknown1 = msg.slice(5,8);
-	console.log("0:" +msg.toString('hex'));
-	console.log("1:" +unknown1.toString('hex'));
-	console.log("ID:"+bridgeID.toString('hex'));
-	var nFrame=buildFrame(bridgeID,CMDS.ON,0x01);
+	if (debug) console.log("0:" +msg.toString('hex'));
+	if (debug) console.log("1:" +unknown1.toString('hex'));
+	if (debug) console.log("ID:"+bridgeID.toString('hex'));
 }
 
 _func['d800000007']=function(){
@@ -325,7 +326,7 @@ var initiate=function(host,port){
 	DEFAULT_PORT=port;
   socket.bind(DEFAULT_PORT);
   var payload=new Buffer([0x20,0x00,0x00,0x00,0x16,0x02,0x62,0x3a,0xd5,0xed,0xa3,0x01,0xae,0x08,0x2d,0x46,0x61,0x41,0xa7,0xf6,0xdc,0xaf,0xfe,0xf7,0x00,0x00,0x1e]);
-console.log(payload.toString('hex'));
+if (debug) console.log(payload.toString('hex'));
 	sendFrame(payload);
 };
 
