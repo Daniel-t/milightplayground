@@ -96,6 +96,77 @@ var zoneCtlRGBWFactory=function(zoneID){
   }
 }
 
+var zoneCtlRGBWWFactory=function(zoneID){
+  var color=0x7A;
+	var brightness=0x32;
+  //var saturation=0x32;
+  //var colorTemp=0x4B;
+  var zone=zoneID;
+  if(zone > 4 || zone <0 ) console.log("invalid zone");
+
+  return {
+    on: function(){
+      return [0x31, 0x00, 0x00, 0x07, 0x03, 0x01, 0x00, 0x00, 0x00, zoneID];
+    },
+    off: function(){
+      return [0x31, 0x00, 0x00, 0x07, 0x03, 0x02, 0x00, 0x00, 0x00, zoneID];
+    },
+    nightMode: function() {
+      return [0x31, 0x00, 0x00, 0x07, 0x03, 0x06, 0x00, 0x00, 0x00, zoneID];
+    },
+    whiteMode:function() {
+      return [0x31, 0x00, 0x00, 0x07, 0x04, 0x00, 0x00, 0x00, 0x00, zoneID];
+    },
+    brightnessUp:function(){
+      console.log("B+ not captured");
+      brightness=Math.min(brightness+5,0x64);
+      return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
+    },
+    brightnessDown:function(){
+      console.log("B+ not captured");
+
+      brightness=Math.max(brightness-5,0x00);
+      return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
+    },
+    brightnessSet:function(b){
+      console.log("B+ not captured");
+
+      brightness=Math.max(b,0x00);
+      brightness=Math.min(b,0xFF);
+      return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
+    },
+    colorUp:function(){
+      color=Math.min(color+5,0xFF);
+      return [0x31, 0x00, 0x00, 0x07, 0x01, color, color, color, color, zoneID]
+    },
+    colorDown:function(){
+      color=Math.max(color-5,0x00);
+      return [0x31, 0x00, 0x00, 0x07, 0x01, color, color, color, color, zoneID]
+    },
+    colorSet:function(c){
+      color=c;
+      return [0x31, 0x00, 0x00, 0x07, 0x01, color, color, color, color, zoneID]
+    },
+    mode:function(mode){
+      return [0x31, 0x00, 0x00, 0x07, 0x04, mode, 0x00, 0x00, 0x00, zoneID]
+    },
+    modeSpeedUp:function(){
+      return [0x31, 0x00, 0x00, 0x07, 0x03, 0x03, 0x00, 0x00, 0x00, zoneID]
+    },
+    modeSpeedDown:function(){
+      return [0x31, 0x00, 0x00, 0x07, 0x03, 0x04, 0x00, 0x00, 0x00, zoneID]
+    },
+    link:function(){
+      console.log("link not captured");
+      return [0x3D,0,0,0x08,0,0,0,0,0,zoneID]
+    },
+    unlink:function(){
+      console.log("link not captured");
+      return [0x3E,0,0,0x08,0,0,0,0,0,zoneID]
+    },
+  }
+}
+
 var baseCtlFactory=function(){
 	var color=0x7A;
 	var brightness=0x32;
@@ -264,6 +335,5 @@ console.log(payload.toString('hex'));
     exports.initiate= initiate;
     exports.baseCtlFactory= baseCtlFactory;
     exports.zoneCtlRGBWFactory= zoneCtlRGBWFactory;
+    exports.zoneCtlRGBWWFactory= zoneCtlRGBWWFactory;
     exports.sendCmd= sendCmd;
-
-
