@@ -44,7 +44,20 @@ var zoneCtlRGBWFactory=function(zoneID){
     whiteMode:function() {
       return [0x31,0,0,0x08,0x05,0x64,0,0,0,zoneID];
     },
-    brightnessUp:function(){
+    saturationUp:function(){
+      saturation=Math.min(saturation+5,0x64);
+      return [0x31,0x00,0x00,0x08,0x02,saturation,0x00,0x00,0x00,zoneID]
+    },
+    saturationDown:function(){
+      saturation=Math.max(saturation-5,0x00);
+      return [0x31,0x00,0x00,0x08,0x02,saturation,0x00,0x00,0x00,zoneID]
+    },
+    saturationSet:function(b){
+      saturation=Math.max(b,0x00);
+      saturation=Math.min(b,0x64);
+      return [0x31,0x00,0x00,0x08,0x02,saturation,0x00,0x00,0x00,zoneID]
+    },
+   brightnessUp:function(){
       brightness=Math.min(brightness+5,0x64);
       return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
     },
@@ -54,7 +67,7 @@ var zoneCtlRGBWFactory=function(zoneID){
     },
     brightnessSet:function(b){
       brightness=Math.max(b,0x00);
-      brightness=Math.min(b,0xFF);
+      brightness=Math.min(b,0x64);
       return [0x31,0x00,0x00,0x08,0x03,brightness,0x00,0x00,0x00,zoneID]
     },
     colorUp:function(){
@@ -104,10 +117,8 @@ var zoneCtlRGBWFactory=function(zoneID){
         var cmds=this[fnName](arg);
         if (Array.isArray(cmds) && Array.isArray(cmds[0])){
           cmds.forEach(function(elem){
-	console.log("F "+JSON.stringify(elem));
 sendCmd(elem)})
         } else {
-	console.log("G "+JSON.stringify(cmds));
           sendCmd(cmds);//single cmd`
         }
       }
