@@ -277,7 +277,7 @@ var sendCmd = function(CMD,repeats){
  * @return  Array           The HSV representation
  */
  function rgbHandler(rgb,lights){
-   var hsv=rgbToHsv(rgb);
+   var hsv=rgbToHsv(rgb[0],rgb[1],rgb[2]);
    var out=[];
    if (lights.colorSet) out.push(lights.colorSet(hsv[0]))
    if (lights.saturationSet) out.push(lights.saturationSet(hsv[1]))
@@ -304,7 +304,7 @@ function rgbToHsv(r, g, b) {
 
     h /= 6;
   }
-  return [ h, Math.floor(s*100), Math.floor(l*100) ];
+  return [ h, Math.floor(s*100), Math.floor(v*100) ];
 }
 
 
