@@ -69,6 +69,9 @@ var zoneCtlRGBWFactory=function(zoneID){
       color=c;
       return [0x31,0x00,0x00,0x08,0x01,color,color,color,color,zoneID]
     },
+    colorRGB:function(rgb){
+      return rgbHandler(rgb,this);
+    },
     colorTempUp:function(){
       colorTemp=Math.min(colorTemp+5,0x64);
       return [0x31,0x00,0x00,0x08,0x05,colorTemp,0,0,0,zoneID]
@@ -96,6 +99,16 @@ var zoneCtlRGBWFactory=function(zoneID){
     unlink:function(){
       return [0x3E,0,0,0x08,0,0,0,0,0,zoneID]
     },
+    command(fnName,arg){
+      if (this[fnName]) {
+        cmds=this[fnName](arg);
+        if (typeof cmds == "Array"){
+          cmds.forEach(function(elem){sendCmd(elem)})
+        } else {
+          sendCmd(cmds);//single cmd`
+        }
+      }
+    }
   }
 }
 
@@ -145,6 +158,9 @@ var zoneCtlRGBWWFactory=function(zoneID){
       color=c;
       return [0x31, 0x00, 0x00, 0x07, 0x01, color, color, color, color, zoneID]
     },
+    colorRGB:function(rgb){
+      return rgbHandler(rgb,this);
+    },
     mode:function(mode){
       return [0x31, 0x00, 0x00, 0x07, 0x04, mode, 0x00, 0x00, 0x00, zoneID]
     },
@@ -162,6 +178,16 @@ var zoneCtlRGBWWFactory=function(zoneID){
       console.log("link not captured");
       return [0x3E,0,0,0x07,0,0,0,0,0,zoneID]
     },
+    command(fnName,arg){
+      if (this[fnName]) {
+        cmds=this[fnName](arg);
+        if (typeof cmds == "Array"){
+          cmds.forEach(function(elem){sendCmd(elem)})
+        } else {
+          sendCmd(cmds);//single cmd`
+        }
+      }
+    }
   }
 }
 
@@ -198,9 +224,22 @@ var baseCtlFactory=function(){
 			color=c;
 			return [0x31,0x00,0x00,0x00,0x01,color,color,color,color,zoneID]
 		},
+    colorRGB:function(rgb){
+      return rgbHandler(rgb,this);
+    },
 		mode:function(mode){
 			return [0x31,0x00,0x00,0x00,0x04,mode,0,0,0,zoneID]
-		}
+		},
+    command(fnName,arg){
+      if (this[fnName]) {
+        cmds=this[fnName](arg);
+        if (typeof cmds == "Array"){
+          cmds.forEach(function(elem){sendCmd(elem)})
+        } else {
+          sendCmd(cmds);//single cmd`
+        }
+      }
+    }
 	}
 
 };
@@ -224,8 +263,51 @@ var sendCmd = function(CMD,repeats){
 	for (var i=0;i<repeats;i++){
   		socket.send(out,0,out.length,DEFAULT_PORT,DEFAULT_HOST,function(){});
 	}
-
 }
+
+/**
+ * Converts an RGB color value to HSV. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+ * Assumes r, g, and b are contained in the set [0, 255] and
+ * returns h, s, and v in the set [0, 1].
+ *
+ * @param   Number  r       The red color value
+ * @param   Number  g       The green color value
+ * @param   Number  b       The blue color value
+ * @return  Array           The HSV representation
+ */
+ function rgbHandler(rgb,lights){
+   var hsv=rgbToHsv(rgb);
+   var out=[];
+   if (lights.colorSet) out.push(lights.colorSet(hsv[0]))
+   if (lights.saturationSet) out.push(lights.saturationSet(hsv[1]))
+   return out;
+
+ }
+function rgbToHsv(r, g, b) {
+  r /= 255, g /= 255, b /= 255;
+
+  var max = Math.max(r, g, b), min = Math.min(r, g, b);
+  var h, s, v = max;
+
+  var d = max - min;
+  s = max == 0 ? 0 : d / max;
+
+  if (max == min) {
+    h = 0; // achromatic
+  } else {
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+
+    h /= 6;
+  }
+  return [ h, Math.floor(s*100), Math.floor(l*100) ];
+}
+
+
 
 var buildFrame = function(WB,CMD,ZONE){
 	var out=[];
