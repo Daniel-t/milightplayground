@@ -102,9 +102,12 @@ var zoneCtlRGBWFactory=function(zoneID){
     command(fnName,arg){
       if (this[fnName]) {
         var cmds=this[fnName](arg);
-        if (typeof cmds == "Array"){
-          cmds.forEach(function(elem){sendCmd(elem)})
+        if (Array.isArray(cmds) && Array.isArray(cmds[0])){
+          cmds.forEach(function(elem){
+	console.log("F "+JSON.stringify(elem));
+sendCmd(elem)})
         } else {
+	console.log("G "+JSON.stringify(cmds));
           sendCmd(cmds);//single cmd`
         }
       }
@@ -181,7 +184,7 @@ var zoneCtlRGBWWFactory=function(zoneID){
     command(fnName,arg){
       if (this[fnName]) {
         cmds=this[fnName](arg);
-        if (typeof cmds == "Array"){
+        if (Array.isArray(cmds) && Array.isArray(cmds[0])){
           cmds.forEach(function(elem){sendCmd(elem)})
         } else {
           sendCmd(cmds);//single cmd`
@@ -233,7 +236,7 @@ var baseCtlFactory=function(){
     command(fnName,arg){
       if (this[fnName]) {
         cmds=this[fnName](arg);
-        if (typeof cmds == "Array"){
+        if (Array.isArray(cmds) && Array.isArray(cmds[0])){
           cmds.forEach(function(elem){sendCmd(elem)})
         } else {
           sendCmd(cmds);//single cmd`
@@ -278,7 +281,7 @@ var sendCmd = function(CMD,repeats){
  */
  function rgbHandler(rgb,lights){
    var hsv=rgbToHsv(rgb[0],rgb[1],rgb[2]);
-   var out=[];
+   var out=new Array();
    if (lights.colorSet) out.push(lights.colorSet(hsv[0]))
    if (lights.saturationSet) out.push(lights.saturationSet(hsv[1]))
    return out;
@@ -304,7 +307,7 @@ function rgbToHsv(r, g, b) {
 
     h /= 6;
   }
-  return [ h, Math.floor(s*100), Math.floor(v*100) ];
+  return [ Math.floor(h*0xFF), Math.floor(s*100), Math.floor(v*100) ];
 }
 
 
