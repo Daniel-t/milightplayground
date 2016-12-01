@@ -101,7 +101,7 @@ var zoneCtlRGBWFactory=function(zoneID){
     },
     command(fnName,arg){
       if (this[fnName]) {
-        cmds=this[fnName](arg);
+        var cmds=this[fnName](arg);
         if (typeof cmds == "Array"){
           cmds.forEach(function(elem){sendCmd(elem)})
         } else {
