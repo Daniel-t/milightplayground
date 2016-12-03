@@ -2,13 +2,14 @@ module.exports = function(RED) {
 function MiLight6(config) {
 	RED.nodes.createNode(this,config);
 	var node = this;
-  var MiLight = require('milight');
-  var type = config.type;
+  var MiLight = require('./milight.js');
+  var zoneType = config.zoneType;
   var zone = config.zone;
   MiLight.initiate(config.ip,config.port);
 
   var lights;
-  switch(type){
+  console.log("type: "+zoneType);
+  switch(zoneType){
   case 'RGBW':
     lights=MiLight.zoneCtlRGBWFactory(zone);
     break;
@@ -20,11 +21,13 @@ function MiLight6(config) {
     break;
   }
 
-	this.on('input', function(msg) {
+this.on('input', function(msg) {
     if (typeof msg.payload == "string") {
-		    if (msg.payload == "off") MiLight.sendCmd(lights.off());
-		    if (msg.payload == "on") MiLight.sendCmd(lights.on());
+	 console.log("String: "+msg.payload);
+		    if (msg.payload == "off") lights.command("off");
+		    if (msg.payload == "on") lights.command("on");
     } else {
+	console.log("Object: "+JSON.stringify(msg.payload));
       var obj=msg.payload;
       //object
         if (obj.state=="off") {

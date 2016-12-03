@@ -1,0 +1,43 @@
+<script type="text/javascript">
+    RED.nodes.registerType('MiLight6',{
+        category: 'output',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:"MiLight v6"},
+            zoneType: {value:"RGBW"},
+            zone: {value:1,oneditsave:function(){this.zone=parseInt(this.zone)}},
+            ip: {value:"255.255.255.255"},
+            port: {value:5987,oneditsave:function(){this.port=parseInt(this.port)}}
+	},
+        inputs:1,
+        outputs:0,
+        icon: "file.png",
+        label: function() {
+            return this.name||"MiLight v6";
+        }
+    });
+</script>
+<script type="text/x-red" data-template-name="MiLight6">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-zoneType"><i class="icon-tag"></i>Zone Type</label>
+        <input type="text" id="node-input-zoneType" placeholder="RGBW">
+    </div>
+    <div class="form-row">
+        <label for="node-input-zone"><i class="icon-tag"></i>Default Zone</label>
+        <input type="text" id="node-input-zone" placeholder="1">
+    </div>
+    <div class="form-row">
+        <label for="node-input-ip"><i class="icon-tag"></i>IP Address</label>
+        <input type="text" id="node-input-ip" placeholder="255.255.255.255">
+    </div>
+    <div class="form-row">
+        <label for="node-input-port"><i class="icon-tag"></i>Port</label>
+        <input type="text" id="node-input-port" placeholder="5987">
+    </div>
+</script>
+
+
