@@ -194,7 +194,7 @@ var zoneCtlRGBWWFactory=function(zoneID){
     },
     command(fnName,arg){
       if (this[fnName]) {
-        cmds=this[fnName](arg);
+        var cmds=this[fnName](arg);
         if (Array.isArray(cmds) && Array.isArray(cmds[0])){
           cmds.forEach(function(elem){sendCmd(elem)})
         } else {
@@ -246,7 +246,7 @@ var baseCtlFactory=function(){
 		},
     command(fnName,arg){
       if (this[fnName]) {
-        cmds=this[fnName](arg);
+        var cmds=this[fnName](arg);
         if (Array.isArray(cmds) && Array.isArray(cmds[0])){
           cmds.forEach(function(elem){sendCmd(elem)})
         } else {
@@ -401,7 +401,7 @@ _func['8800000003']=function(msg){
 _func['d800000007']=function(){
 	//keepalive response
 }
-var socket=dgram.createSocket('udp4');
+var socket=dgram.createSocket({type:'udp4',reuseAddr:true});
 
 socket.on("message", (msg, rinfo) => {
   //console.log('Received %d bytes from %s:%d\n',
