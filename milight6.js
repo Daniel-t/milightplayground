@@ -34,21 +34,14 @@ this.on('input', function(msg) {
           MiLight.sendCmd(lights.off());
         } else {
           MiLight.sendCmd(lights.on()); //gratuitous on
-          if(obj.white) MiLight.sendCmd(lights.whiteMode());
-          if(obj.night) MiLight.sendCmd(lights.nightMode());
-          if(obj.color) MiLight.sendCmd(lights.color(obj.color)); //Hue
-          if(obj.rgbColor) MiLight.sendCmd(lights.color(obj.color)) //RGB
-          if(obj.brightness) MiLight.sendCmd(lights.brightnessSet(obj.brightness));
-          if(obj.brightnessUp) MiLight.sendCmd(lights.brightnessUp(obj.brightnessUp));
-          if(obj.brightnessDown) MiLight.sendCmd(lights.brightnessDown(obj.brightnessDown));
+          if(obj.white) lights.command("whiteMode"); //RGB
+          if(obj.color) lights.command("colorSet",obj.color); //RGB
+          if(obj.rgbColor) lights.command("colorRGB",obj.rgbColor); //RGB
+          if(obj.night) lights.command("nightMode"); //RGB
+          if(obj.brightness) lights.command("brightnessSet",obj.brightness); //RGB
+          if(obj.brightnessUp) lights.command("brightnessUp"); //RGB
+          if(obj.brightnessDown) lights.command("brightnessDown"); //RGB
 
-          if(obj.saturation) MiLight.sendCmd(lights.saturationSet(obj.saturation));
-          if(obj.saturationUp) MiLight.sendCmd(lights.saturationUp(obj.saturationUp));
-          if(obj.saturationDown) MiLight.sendCmd(lights.saturationDown(obj.saturationDown));
-
-          if(obj.colorTemp) MiLight.sendCmd(lights.colorTempSet(obj.colorTemp));
-          if(obj.colorTempUp) MiLight.sendCmd(lights.colorTempUp(obj.colorTempUp));
-          if(obj.colorTempDown) MiLight.sendCmd(lights.colorTempDown(obj.colorTempDown));
         }
     }
 	});
