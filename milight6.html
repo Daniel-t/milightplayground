@@ -24,11 +24,15 @@
     </div>
     <div class="form-row">
         <label for="node-input-zoneType"><i class="icon-tag"></i>Zone Type</label>
-        <input type="text" id="node-input-zoneType" placeholder="RGBW">
+        <select id="node-input-zoneType" placeholder="RGBW">
+		<option value="RGBW" default>RGBW</option>
+		<option value="RGBWW" >RGBWW/CW</option>
+		<option value="BASE" >BASE</option>
+	</select>
     </div>
     <div class="form-row">
         <label for="node-input-zone"><i class="icon-tag"></i>Default Zone</label>
-        <input type="text" id="node-input-zone" placeholder="1">
+        <input type="text" id="node-input-zone" placeholder="0">
     </div>
     <div class="form-row">
         <label for="node-input-ip"><i class="icon-tag"></i>IP Address</label>

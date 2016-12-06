@@ -34,13 +34,16 @@ this.on('input', function(msg) {
           MiLight.sendCmd(lights.off());
         } else {
           MiLight.sendCmd(lights.on()); //gratuitous on
-          if(obj.white) lights.command("whiteMode"); //RGB
-          if(obj.color) lights.command("colorSet",obj.color); //RGB
+          if(obj.white) lights.command("whiteMode"); 
+          if(obj.color) lights.command("colorSet",obj.color); 
           if(obj.rgbColor) lights.command("colorRGB",obj.rgbColor); //RGB
-          if(obj.night) lights.command("nightMode"); //RGB
-          if(obj.brightness) lights.command("brightnessSet",obj.brightness); //RGB
-          if(obj.brightnessUp) lights.command("brightnessUp"); //RGB
-          if(obj.brightnessDown) lights.command("brightnessDown"); //RGB
+          if(obj.night) lights.command("nightMode"); 
+          if(obj.brightness) lights.command("brightnessSet",obj.brightness); 
+          if(obj.brightnessUp) lights.command("brightnessUp"); 
+          if(obj.brightnessDown) lights.command("brightnessDown"); 
+          if(obj.saturation) lights.command("saturationSet",obj.saturation); 
+          if(obj.saturationUp) lights.command("saturationUp"); 
+          if(obj.saturationDown) lights.command("saturationDown"); 
 
         }
     }
