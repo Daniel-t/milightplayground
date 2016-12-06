@@ -1,3 +1,8 @@
+# THIS IS NOT THE REPO YOU ARE LOOKING FOR
+
+See:
+* https://github.com/daniel-t/MiLight_v6
+
 This is a playground, things will work or not work depending on what I'm up to.
 
 ## Usage 
